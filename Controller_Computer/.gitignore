@@ -1,0 +1,6 @@
+nbproject/
+build/
+lib/
+*.xml
+*.mf
+*.log
