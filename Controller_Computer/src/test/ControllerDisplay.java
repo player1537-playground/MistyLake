@@ -26,7 +26,7 @@ public class ControllerDisplay extends JFrame {
     private static final int frameWidth = 640, frameHeight = 480;
     private static final int buttonWidth = 400, buttonHeight = 100;
     private static final int trackDispSize = 200;
-    private static final int trackScale = 200;
+    private static final int trackScale = 1000;
 
     Timer repaint;
 
@@ -110,9 +110,8 @@ public class ControllerDisplay extends JFrame {
 
                     g.setColor(c.getButton(i) ? pressed : released);
                     g.fillOval(x, y, diam, diam);
-                    
                     g.setColor(fontColor);
-                    g.drawString("" + (i + 1), x + diam / 2 - (int)textSize / 4, y - diam /2);
+                    g.drawString("" + (i + 1), x + diam / 2 - (int)textSize / 4, y - diam /3);
                 }
             }
         }
@@ -141,7 +140,7 @@ public class ControllerDisplay extends JFrame {
             super.paint(g);
 
             for (int i = 0; i < track.getNumFingers(); i++) {
-                int diam = track.getStrength(i) / 5;
+                int diam = (int) (Math.sqrt(track.getStrength(i) / 1000.0) * 50);
                 int x = (int)(track.getX(i) * width  / xscale - diam / 2.0);
                 int y = (int)(track.getY(i) * height / yscale - diam / 2.0);
 

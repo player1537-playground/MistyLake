@@ -33,13 +33,19 @@ public class ControllerTest {
             reader.addReadListener(events);
 
             ControllerEventEcho echo = new ControllerEventEcho(events);
+            
+            
+            ControllerDisplay disp = new ControllerDisplay(reader);
 
             Thread readerThread = new Thread(reader);
             readerThread.start();
             Thread writerThread = new Thread(writer);
             writerThread.start();
 
-
+            Thread.sleep(2000);
+            writer.requestSpec();
+            Thread.sleep(2000);
+            writer.requestSpec();
         } catch (Exception ex) {
             ex.printStackTrace();
         }

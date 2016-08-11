@@ -91,6 +91,7 @@ public class ControllerReader implements Runnable, Parser, Controller {
                 t1.set(0, unstuffed.getShort(),unstuffed.getShort(),unstuffed.getShort());
                 t2.set(0, unstuffed.getShort(),unstuffed.getShort(),unstuffed.getShort());
 
+                
                 short buttonShort = unstuffed.getShort();
                 for (int j = 0; j < maxButtons; j++) {
                     buttons[maxButtons - j - 1] = (buttonShort & 1) != 0;

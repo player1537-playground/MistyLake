@@ -40,6 +40,8 @@ public class COBSReader {
             buffer.limit(numRead);
             while (buffer.hasRemaining()) {
                 byte current = buffer.get();
+                
+                //System.out.println(current);
                 if (stuffed.hasRemaining()) {
                     stuffed.put(current);
                 } else {
@@ -53,6 +55,7 @@ public class COBSReader {
                         if (!unstuffBytes(stuffed, unstuffed)) {
                             System.err.println("Invalid Message. Message could not be unstuffed");
                         } else {
+                            //Utility.printBytes(unstuffed);
                             parser.parse(unstuffed);
                         }
                     }
