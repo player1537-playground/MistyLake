@@ -9,6 +9,8 @@
 #ifndef CONTROLLER_H_
 #define CONTROLLER_H_
 
+#include "SoftwareWire.h"
+
 #define HARDWARE_VERSION 1
 #define SOFTWARE_VERSION 1
 #define NUM_BUTTONS 3
@@ -19,7 +21,7 @@ struct Trackpad {
   unsigned short strength;
 };
 
-void setupController();
+void setupController(SoftwareWire *w1, SoftwareWire *w2);
 void updateController();
 
 Trackpad getTrack1();

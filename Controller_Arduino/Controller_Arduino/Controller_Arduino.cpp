@@ -13,11 +13,14 @@
 #include "Controller.h"
 #include "MessageReader.h"
 #include "MessageWriter.h"
+#include "SoftwareWire.h"
 
 void setup();
 void loop();
 
 SoftwareSerial serial(0,1);
+SoftwareWire wire1(0, 0);
+SoftwareWire wire2(0, 0);
 
 int main(void) {
   init();
@@ -35,7 +38,7 @@ int main(void) {
 
 void setup() {
   serial.begin(9600);
-  setupController();
+  setupController(&wire1, &wire2);
   setupWriter();
   setupReader();
 }
