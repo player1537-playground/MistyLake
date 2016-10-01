@@ -87,15 +87,15 @@ void readTrackpads() {
 
   //select appropriate address in device memory map
   for (i=0; i<2; ++i) {
-    wires[i].beginTransmission(ADDRESS);
-    wires[i].write(DATA_ADDRESS_1);
-    wires[i].write(DATA_ADDRESS_2);
-    unsigned short tmp = (unsigned short)wires[i].endTransmission();
+    wires[i]->beginTransmission(ADDRESS);
+    wires[i]->write(DATA_ADDRESS_1);
+    wires[i]->write(DATA_ADDRESS_2);
+    unsigned short tmp = (unsigned short)wires[i]->endTransmission();
 
-    unsigned char bytesRead = wires[i].requestFrom(ADDRESS, bytesToRead);
+    unsigned char bytesRead = wires[i]->requestFrom(ADDRESS, bytesToRead);
 
     if(bytesRead == bytesToRead) {
-      wires[i].readBytes(buffer, bytesToRead);
+      wires[i]->readBytes(buffer, bytesToRead);
 
       trackpads[i].x = (buffer[0] << 8) | (buffer[1]);
       trackpads[i].y = (buffer[2] << 8) | (buffer[3]);
@@ -104,11 +104,11 @@ void readTrackpads() {
 
     //End i2c communication with sensor
     //This is necessary to allow the chip to process new inputs
-    wires[i].beginTransmission(ADDRESS);
-    wires[i].write(END_ADDRESS_1);
-    wires[i].write(END_ADDRESS_2);
-    wires[i].write(END_DATA);
-    wires[i].endTransmission();
+    wires[i]->beginTransmission(ADDRESS);
+    wires[i]->write(END_ADDRESS_1);
+    wires[i]->write(END_ADDRESS_2);
+    wires[i]->write(END_DATA);
+    wires[i]->endTransmission();
   }
 }
 

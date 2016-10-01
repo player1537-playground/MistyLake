@@ -20,8 +20,14 @@ public class SerialComm {
 
     private InputStream in;
     private OutputStream out;
+    
+    public static final int default_baud = 9600;
 
     public void connect(String portName) {
+        connect(portName, default_baud);
+    }
+    
+    public void connect(String portName, int baud) {
         try {
             CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
             if (portIdentifier.isCurrentlyOwned()) {
@@ -31,7 +37,7 @@ public class SerialComm {
 
                 if (commPort instanceof SerialPort) {
                     SerialPort serialPort = (SerialPort) commPort;
-                    serialPort.setSerialPortParams(9600, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+                    serialPort.setSerialPortParams(baud, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
                     in = serialPort.getInputStream();
                     out = serialPort.getOutputStream();

@@ -62,7 +62,7 @@ void writeData() {
     SHORT_TO_BYTES(t1.y, outMessageBuffer, 4);
     SHORT_TO_BYTES(t1.strength, outMessageBuffer, 6);
 
-    Trackpad t2 = getTrack1();
+    Trackpad t2 = getTrack2();
     SHORT_TO_BYTES(t2.x, outMessageBuffer, 8);
     SHORT_TO_BYTES(t2.y, outMessageBuffer, 10);
     SHORT_TO_BYTES(t2.strength, outMessageBuffer, 12);
