@@ -33,7 +33,7 @@ void setupWriter() {
 
 void writeData() {
 
-  for(int i = 0; i < 16; i++) {
+  for(int i = 0; i < 20; i++) {
     outMessageBuffer[i] = 0;
   }
 
@@ -53,7 +53,7 @@ void writeData() {
 
 
   } else {
-    len = 16;
+    len = 20;
     outMessageBuffer[0] = len;
     outMessageBuffer[1] = DATA_ID;
 
@@ -67,7 +67,9 @@ void writeData() {
     SHORT_TO_BYTES(t2.y, outMessageBuffer, 10);
     SHORT_TO_BYTES(t2.strength, outMessageBuffer, 12);
 
-    SHORT_TO_BYTES(getButtons(), outMessageBuffer, 14);
+	SHORT_TO_BYTES(getButtons(), outMessageBuffer, 14);
+	SHORT_TO_BYTES(getJoystickX(), outMessageBuffer, 16);
+	SHORT_TO_BYTES(getJoystickY(), outMessageBuffer, 18);
 
   }
 

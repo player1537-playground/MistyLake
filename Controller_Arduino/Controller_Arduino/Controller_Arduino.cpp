@@ -19,8 +19,8 @@ void setup();
 void loop();
 
 SoftwareSerial serial(0,1);
-SoftwareWire wire1(0, 0);
-SoftwareWire wire2(0, 0);
+SoftwareWire wire1(2,3);
+SoftwareWire wire2(5,4);
 
 int main(void) {
   init();

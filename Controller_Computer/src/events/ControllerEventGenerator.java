@@ -1,7 +1,7 @@
 
 package events;
 
-import io.ControllerReader;
+import io.ControllerOverMessenger;
 import controller.Trackpad;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class ControllerEventGenerator implements ControllerReadListener {
     
-    ControllerReader reader;
+    ControllerOverMessenger reader;
     
     List<ControllerSpecListener> specListeners;
     List<List<ControllerTrackListener>> trackListeners;
@@ -26,7 +26,7 @@ public class ControllerEventGenerator implements ControllerReadListener {
     private boolean track1Pressed, track2Pressed;
     private boolean[] oldButtons;
     
-    public ControllerEventGenerator(ControllerReader reader) {
+    public ControllerEventGenerator(ControllerOverMessenger reader) {
         this.reader = reader;
         specListeners = new ArrayList<>();
         
@@ -35,7 +35,7 @@ public class ControllerEventGenerator implements ControllerReadListener {
         trackListeners.add(new ArrayList<>());
         
         buttonListeners = new ArrayList<>();
-        for(int i = 0; i < ControllerReader.maxButtons; i++) {
+        for(int i = 0; i < ControllerOverMessenger.maxButtons; i++) {
             buttonListeners.add(new ArrayList<>());
         }
         
@@ -44,7 +44,7 @@ public class ControllerEventGenerator implements ControllerReadListener {
         
         oldT1 = new Trackpad(numFingers);
         oldT2 = new Trackpad(numFingers);
-        oldButtons = new boolean[ControllerReader.maxButtons];
+        oldButtons = new boolean[ControllerOverMessenger.maxButtons];
     }
     
     public void addSpecListener(ControllerSpecListener listener) {
@@ -58,13 +58,13 @@ public class ControllerEventGenerator implements ControllerReadListener {
     }
 
     @Override
-    public void onRead(ControllerReader reader, int id) {
-        if(id == ControllerReader.SPEC_ID) {
+    public void onRead(ControllerOverMessenger reader, int id) {
+        if(id == ControllerOverMessenger.SPEC_ID) {
             for(ControllerSpecListener listener : specListeners) {
                 listener.onSpecRead(reader.getHardwareVersion(),
                         reader.getSoftwareVersion(), reader.getButtonsUsed());
             }
-        } else if (id == ControllerReader.DATA_ID) {
+        } else if (id == ControllerOverMessenger.DATA_ID) {
             
             boolean[] buttons = reader.getButtons();
             for(int i = 0; i < oldButtons.length; i++) {

@@ -13,7 +13,7 @@
 
 #define HARDWARE_VERSION 1
 #define SOFTWARE_VERSION 1
-#define NUM_BUTTONS 3
+#define NUM_BUTTONS 4
 
 struct Trackpad {
   unsigned short x;
@@ -28,6 +28,8 @@ Trackpad getTrack1();
 Trackpad getTrack2();
 
 unsigned short getButtons();
+unsigned short getJoystickX();
+unsigned short getJoystickY();
 
 void requestWriteSpec();
 

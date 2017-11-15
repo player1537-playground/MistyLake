@@ -2,37 +2,24 @@
 package test;
 
 import io.ControllerEmulator;
-import io.ControllerReader;
-import io.ControllerWriter;
 import controller.Trackpad;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.MouseInfo;
-import java.awt.Point;
-import java.awt.PointerInfo;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
+import message.Messenger;
 
 /**
  *
@@ -40,17 +27,14 @@ import javax.swing.border.BevelBorder;
  */
 public class MouseAndKeyEmulator extends ControllerEmulator {
 
-    InputStream in;
-    OutputStream out;
-
     public static final int hardwareVersion = 144;
     public static final int softwareVersion = 351;
     public static final int numButtons = 8;
 
     public static final int trackSize = 200;
 
-    public MouseAndKeyEmulator(InputStream in, OutputStream out) {
-        super(in, out, hardwareVersion, softwareVersion, numButtons);
+    public MouseAndKeyEmulator(Messenger messenger) {
+        super(messenger, hardwareVersion, softwareVersion, numButtons);
 
         JFrame frame = new JFrame("Controller Emulator");
         frame.setLayout( new GridBagLayout());
@@ -141,14 +125,21 @@ public class MouseAndKeyEmulator extends ControllerEmulator {
             this.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-                track.setX(0, (short) e.getX());
-                track.setY(0, (short) e.getY());
+                track.setX(0, scaleX(e.getX()));
+                track.setY(0, scaleY(e.getY()));
             }
 
             @Override
             public void mouseDragged(MouseEvent e) {
-                track.setX(0, (short) e.getX());
-                track.setY(0, (short) e.getY());
+                track.setX(0, scaleX(e.getX()));
+                track.setY(0, scaleY(e.getY()));
+            }
+            
+            private short scaleX(int x) {
+                return (short)(780 / 200 * x);
+            }
+            private short scaleY(int y) {
+                return (short)(1030 / 200 * y);
             }
 
         });

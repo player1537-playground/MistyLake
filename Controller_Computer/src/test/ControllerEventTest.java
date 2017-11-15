@@ -1,17 +1,12 @@
-
 package test;
 
-import controller.Controller;
-import io.ControllerEmulator;
+import comm.PipedBlockComm;
+import comm.UDPBlockComm;
 import events.ControllerEventGenerator;
-import io.ControllerReader;
-import io.ControllerWriter;
-import io.SerialComm;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import io.ControllerOverMessenger;
+import java.net.InetAddress;
+import message.Messenger;
+import message.TransparentBlockMessenger;
 
 /**
  *
@@ -23,39 +18,41 @@ public class ControllerEventTest {
 
         try {
             
-            PipedOutputStream contOut = new PipedOutputStream();
-            PipedInputStream compIn = new PipedInputStream(contOut);
+            //UDPBlockComm blockComm = new UDPBlockComm(InetAddress.getByName("192.168.4.1"), 1234);
+            //Messenger messengerComputer = new TransparentBlockMessenger(blockComm);
+            Messenger messengerComputer = createEmulatorAndMessenger();
+            
+            ControllerOverMessenger controller = new ControllerOverMessenger(messengerComputer);
 
-            PipedOutputStream compOut = new PipedOutputStream();
-            PipedInputStream contIn = new PipedInputStream(compOut);
-
-            ControllerReader reader = new ControllerReader(compIn);
-
-            ControllerWriter writer = new ControllerWriter(compOut);
-
-            ControllerEventGenerator events = new ControllerEventGenerator(reader);
-            reader.addReadListener(events);
+            ControllerEventGenerator events = new ControllerEventGenerator(controller);
+            controller.addReadListener(events);
 
             ControllerEventEcho echo = new ControllerEventEcho(events);
 
-            MouseAndKeyEmulator emulator = new MouseAndKeyEmulator(contIn, contOut);
-            
-            ControllerDisplay disp = new ControllerDisplay(reader);
-            
-            Thread readerThread = new Thread(reader);
-            Thread writerThread = new Thread(writer);
-            Thread controllerThread = new Thread(emulator);
-            readerThread.start();
-            writerThread.start();
-            controllerThread.start();
-            
-            
+            ControllerDisplay disp = new ControllerDisplay(controller);
+
+            controller.start();
+
             Thread.sleep(1000);
-            writer.requestSpec();
+            controller.requestSpec();
 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
 
+    }
+
+    public static Messenger createEmulatorAndMessenger() {
+        PipedBlockComm commEmulator = new PipedBlockComm();
+        PipedBlockComm commComputer = new PipedBlockComm();
+        commComputer.setTarget(commEmulator);
+
+        Messenger messengerEmulator = new TransparentBlockMessenger(commEmulator);
+        Messenger messengerComputer = new TransparentBlockMessenger(commComputer);
+
+        MouseAndKeyEmulator emulator = new MouseAndKeyEmulator(messengerEmulator);
+        emulator.start();
+        
+        return messengerComputer;
     }
 }

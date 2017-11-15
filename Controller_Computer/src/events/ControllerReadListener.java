@@ -1,7 +1,7 @@
 
 package events;
 
-import io.ControllerReader;
+import io.ControllerOverMessenger;
 
 /**
  *
@@ -9,6 +9,6 @@ import io.ControllerReader;
  */
 public interface ControllerReadListener {
     
-    public void onRead(ControllerReader reader, int id);
+    public void onRead(ControllerOverMessenger reader, int id);
     
 }

@@ -9,56 +9,56 @@ public class Trackpad {
     
     private int numFingers;
     private boolean[] active;
-    private short[] x, y, strengths;
+    private int[] x, y, strengths;
     
     public Trackpad(int numFingers) {
         this.numFingers = numFingers;
         active = new boolean[numFingers];
-        x = new short[numFingers];
-        y = new short[numFingers];
-        strengths = new short[numFingers];
+        x = new int[numFingers];
+        y = new int[numFingers];
+        strengths = new int[numFingers];
     }
     
     public void setActive(int finger, boolean pactive) {
         active[finger] = pactive;
     }
     
-    public void set(int finger, short px, short py, short pstrength) {
+    public void set(int finger, int px, int py, int pstrength) {
         x[finger] = px;
         y[finger] = py;
         strengths[finger] = pstrength;
     }
-    public void set(int finger, short[] pdata) {
+    public void set(int finger, int[] pdata) {
         x[finger] = pdata[0];
         y[finger] = pdata[1];
         strengths[finger] = pdata[2];
     }
     
-    public void setX(int finger, short px) {
+    public void setX(int finger, int px) {
         x[finger] = px;
     }
-    public void setY(int finger, short py) {
+    public void setY(int finger, int py) {
         y[finger] = py;
     }
-    public void setStrength(int finger, short pstrength) {
+    public void setStrength(int finger, int pstrength) {
         strengths[finger] = pstrength;
     }
     
     
-    public short getX(int finger) {
+    public int getX(int finger) {
         return x[finger];
     }
     
-    public short getY(int finger) {
+    public int getY(int finger) {
         return y[finger];
     }
     
-    public short getStrength(int finger) {
+    public int getStrength(int finger) {
         return strengths[finger];
     }
     
-    public short[] get(int finger) {
-        return new short[] {x[finger], y[finger], strengths[finger]};
+    public int[] get(int finger) {
+        return new int[] {x[finger], y[finger], strengths[finger]};
     }
     
     public int getNumFingers() {
@@ -67,10 +67,6 @@ public class Trackpad {
     
     public boolean getActive(int finger) {
         return active[finger];
-    }
-    
-    public void getCreative() {
-        System.out.println("Green is not a creative color!");
     }
     
     public void copy(Trackpad loc) {

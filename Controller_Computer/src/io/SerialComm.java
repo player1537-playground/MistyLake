@@ -10,7 +10,6 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Enumeration;
 import java.util.HashSet;
-import test.ByteStuffingTest;
 
 /**
  *

@@ -1,27 +1,25 @@
-
 package io;
 
 import controller.Controller;
-import io.COBSReader;
-import io.COBSWriter;
-import io.ControllerReader;
-import io.Parser;
+import io.ControllerOverMessenger;
 import controller.Trackpad;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import message.Messenger;
+import util.DefaultThread;
 
 /**
  *
  * @author Andrew_2
  */
-public class ControllerEmulator implements Controller, Runnable, Parser {
+public class ControllerEmulator implements Controller, Messenger.MessageReceivedCallback {
 
-    private InputStream in;
-    private OutputStream out;
-    private COBSReader reader;
-    private COBSWriter writer;
+    private Messenger messenger;
+    private DefaultThread writeThread;
 
     private int hardwareVersion;
     private int softwareVersion;
@@ -49,27 +47,26 @@ public class ControllerEmulator implements Controller, Runnable, Parser {
     private static final int defaultHardwareVersion = 144;
     private static final int defaultSoftwareVersion = 351;
     private static final int defaultNumButtons = 6;
-    
+
     private static final byte dataMessageSize = 16; //1 + 1 + 2 * 3 * 2 + 2
     private static final byte specMessageSize = 16; //1 + 1 + 4 + 4 + 4 + 2
-    
+
     private static final int maxButtons = 16;
 
-    public ControllerEmulator(InputStream in, OutputStream out) {
-        this(in, out, defaultHardwareVersion, defaultSoftwareVersion, defaultNumButtons);
+    public ControllerEmulator(Messenger messenger) {
+        this(messenger, defaultHardwareVersion, defaultSoftwareVersion, defaultNumButtons);
     }
 
-    public ControllerEmulator(InputStream in, OutputStream out,
+    public ControllerEmulator(Messenger messenger,
             int hardwareVersion, int softwareVersion, int numButtons) {
-        this(in, out, hardwareVersion, softwareVersion, numButtons,
+        this(messenger, hardwareVersion, softwareVersion, numButtons,
                 defaultInSize, defaultInMessageSize, defaultOutMessageSize);
     }
 
-    public ControllerEmulator(InputStream in, OutputStream out,
+    public ControllerEmulator(Messenger messenger,
             int hardwareVersion, int softwareVersion, int numButtons,
             int inSize, int inMessageSize, int outMessageSize) {
-        this.in = in;
-        this.out = out;
+        this.messenger = messenger;
 
         this.hardwareVersion = hardwareVersion;
         this.softwareVersion = softwareVersion;
@@ -79,9 +76,6 @@ public class ControllerEmulator implements Controller, Runnable, Parser {
         this.inMessageSize = inMessageSize;
         this.outMessageSize = outMessageSize;
 
-        reader = new COBSReader(in, inSize, inMessageSize, this);
-        writer = new COBSWriter(out, outMessageSize);
-
         t1 = new Trackpad(numFingers);
         t2 = new Trackpad(numFingers);
         buttons = new boolean[maxButtons];
@@ -89,8 +83,29 @@ public class ControllerEmulator implements Controller, Runnable, Parser {
         rawOutBuffer = new byte[outMessageSize];
         outBuffer = ByteBuffer.wrap(rawOutBuffer);
 
+        writeThread = new DefaultThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (writeSpec) {
+                        writeSpec();
+                        writeSpec = false;
+                    }
+                    writeData();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
     }
 
+    public void start() {
+        messenger.setMessageReceivedCallback(this);
+        messenger.connect();
+        writeThread.start();
+    }
+    
     @Override
     public Trackpad getTrack1() {
         return t1;
@@ -126,60 +141,44 @@ public class ControllerEmulator implements Controller, Runnable, Parser {
     }
 
     public void close() {
+        writeThread.stop();
+        messenger.disconnect();
         closed = true;
-    }
-
-    @Override
-    public void run() {
-        try {
-
-            while (!closed) {
-
-                reader.read();
-
-                if (writeSpec) {
-                    writeSpec();
-                    writeSpec = false;
-                }
-                writeData();
-                Thread.sleep((long) 100);
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
     }
 
     private void writeData() throws IOException {
         outBuffer.clear();
-        outBuffer.put(dataMessageSize);
-        outBuffer.put(ControllerReader.DATA_ID);
-        outBuffer.putShort(t1.getX(0));
-        outBuffer.putShort(t1.getY(0));
-        outBuffer.putShort(t1.getStrength(0));
-        outBuffer.putShort(t2.getX(0));
-        outBuffer.putShort(t2.getY(0));
-        outBuffer.putShort(t2.getStrength(0));
+        outBuffer.put(ControllerOverMessenger.DATA_ID);
+        outBuffer.put((byte)(t1.getActive(0) ? 0 : 1));
+        outBuffer.putShort((short)t1.getX(0));
+        outBuffer.putShort((short)t1.getY(0));
+        outBuffer.putShort((short)t1.getStrength(0));
+        outBuffer.put((byte)(t2.getActive(0) ? 0 : 1));
+        outBuffer.putShort((short)t2.getX(0));
+        outBuffer.putShort((short)t2.getY(0));
+        outBuffer.putShort((short)t2.getStrength(0));
         outBuffer.putShort(booleansToShort(buttons));
+        outBuffer.putShort((short)0);
+        outBuffer.putShort((short)0);
+        outBuffer.putShort((short)0);
+        outBuffer.putShort((short)0);
         outBuffer.flip();
 
-        writer.write(outBuffer);
+        messenger.sendMessage(outBuffer);
     }
 
     private void writeSpec() throws IOException {
 
         outBuffer.clear();
-        outBuffer.put(specMessageSize);
-        outBuffer.put(ControllerReader.SPEC_ID);
+        outBuffer.put(ControllerOverMessenger.SPEC_ID);
         outBuffer.putInt(hardwareVersion);
         outBuffer.putInt(softwareVersion);
         outBuffer.putInt(numButtons);
-        outBuffer.put((byte)0);
-        outBuffer.put((byte)0);
+        outBuffer.put((byte) 0);
+        outBuffer.put((byte) 0);
         outBuffer.flip();
 
-        writer.write(outBuffer);
+        messenger.sendMessage(outBuffer);
     }
 
     public static short booleansToShort(boolean[] values) {
@@ -195,18 +194,12 @@ public class ControllerEmulator implements Controller, Runnable, Parser {
     }
 
     @Override
-    public void parse(ByteBuffer message) {
-        int dataLength = message.remaining();
-        int readLength = message.get() & 0xFF;
+    public void onMessageReceived(Messenger messenger, ByteBuffer msg) {
+        int dataLength = msg.remaining();
         
-        if (readLength != dataLength) {
-            System.err.println("Invalid Message. Read length did not match data length");
-            return;
-        }
-
-        int id = message.get() & 0xFF;
+        int id = msg.get() & 0xFF;
         switch (id) {
-            case (ControllerReader.SPEC_ID): {
+            case (ControllerOverMessenger.SPEC_ID): {
 
                 writeSpec = true;
                 break;

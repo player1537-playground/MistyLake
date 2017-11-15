@@ -5,6 +5,7 @@
  */
 package test;
 
+import gnu.io.CommPortIdentifier;
 import io.SerialComm;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -40,8 +41,9 @@ public class SerialLog extends JFrame implements Runnable {
     JScrollBar bar;
     
     public static void main(String[] args) {
-        SerialLog sl = new SerialLog("COM7", 115200);
-        (new Thread(sl)).start();
+        listPorts();
+        //SerialLog sl = new SerialLog("COM7", 115200);
+        //(new Thread(sl)).start();
                 
     }
 
@@ -124,4 +126,34 @@ public class SerialLog extends JFrame implements Runnable {
             System.exit(1);
         }
     }
+    static void listPorts()
+    {
+        System.out.println("EHEHE");
+        java.util.Enumeration<CommPortIdentifier> portEnum = CommPortIdentifier.getPortIdentifiers();
+        while ( portEnum.hasMoreElements() ) 
+        {
+            CommPortIdentifier portIdentifier = portEnum.nextElement();
+            System.out.println(portIdentifier.getName()  +  " - " +  getPortTypeName(portIdentifier.getPortType()) );
+        }        
+    }
+    
+    static String getPortTypeName ( int portType )
+    {
+        switch ( portType )
+        {
+            case CommPortIdentifier.PORT_I2C:
+                return "I2C";
+            case CommPortIdentifier.PORT_PARALLEL:
+                return "Parallel";
+            case CommPortIdentifier.PORT_RAW:
+                return "Raw";
+            case CommPortIdentifier.PORT_RS485:
+                return "RS485";
+            case CommPortIdentifier.PORT_SERIAL:
+                return "Serial";
+            default:
+                return "unknown type";
+        }
+    }
+    
 }

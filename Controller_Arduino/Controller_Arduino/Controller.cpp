@@ -25,16 +25,23 @@ const unsigned char END_ADDRESS_2 = 0xEE;
 const unsigned char END_DATA = 0xFF;
 
 
-const unsigned char numButtons = 3;
-const unsigned char buttonPins[] = {4,5,6};
+const unsigned char numButtons = 4;
+const unsigned char buttonPins[] = {6,7,8,9};
+	
 const int bytesToRead = 6;
 
 Trackpad trackpads[2];
 SoftwareWire *wires[2];
 unsigned short buttons;
 
+const unsigned char jxPin = 4;
+const unsigned char jyPin = 5;
+unsigned short joystickX;
+unsigned short joystickY;
+
 void readTrackpads();
 void readButtons();
+void readJoystick();
 
 Trackpad getTrack1() {
   return trackpads[0];
@@ -45,16 +52,25 @@ Trackpad getTrack2() {
 }
 
 unsigned short getButtons() {
-  return buttons;
+	return buttons;
+}
+unsigned short getJoystickX() {
+	return joystickX;
+}
+unsigned short getJoystickY() {
+	return joystickY;
 }
 
 void setupController(SoftwareWire *w1, SoftwareWire *w2) {
   int i;
 
   for(i = 0; i < numButtons; i++) {
-    pinMode(buttonPins[i], INPUT);
+    pinMode(buttonPins[i], INPUT_PULLUP);
   }
   buttons = 0;
+  
+  joystickX = 0;
+  joystickY = 0;
 
   for (i=0; i<2; ++i) {
     trackpads[i].x = 0;
@@ -64,6 +80,9 @@ void setupController(SoftwareWire *w1, SoftwareWire *w2) {
 
   wires[0] = w1;
   wires[1] = w2;
+  for(int i = 0; i < 2; i++) {
+	  wires[i]->begin();
+  }
 
   //Disable events on trackpad
   /*Wire.beginTransmission(ADDRESS);
@@ -78,6 +97,7 @@ void setupController(SoftwareWire *w1, SoftwareWire *w2) {
 void updateController() {
   readTrackpads();
   readButtons();
+  readJoystick();
 }
 
 //read data from trackpads via i2c
@@ -100,8 +120,10 @@ void readTrackpads() {
       trackpads[i].x = (buffer[0] << 8) | (buffer[1]);
       trackpads[i].y = (buffer[2] << 8) | (buffer[3]);
       trackpads[i].strength = (buffer[4] << 8) | (buffer[5]);
-    }
-
+    } else {
+	
+	trackpads[i].x = bytesRead;
+	}
     //End i2c communication with sensor
     //This is necessary to allow the chip to process new inputs
     wires[i]->beginTransmission(ADDRESS);
@@ -119,6 +141,11 @@ void readButtons() {
       buttons |=  1 << (15 - i);
     }
   }
+}
+
+void readJoystick() {
+	joystickX = analogRead(jxPin);
+	joystickY = analogRead(jyPin);
 }
 
 void requestWriteSpec() {

@@ -26,7 +26,7 @@ public class ControllerDisplay extends JFrame {
     private static final int frameWidth = 640, frameHeight = 480;
     private static final int buttonWidth = 400, buttonHeight = 100;
     private static final int trackDispSize = 200;
-    private static final int trackScale = 1000;
+    private static final int trackScaleX = 780, trackScaleY = 1030;
 
     Timer repaint;
 
@@ -41,14 +41,16 @@ public class ControllerDisplay extends JFrame {
         gc.gridy = 0;
         this.add(new JLabel("Track 1"), gc);
         gc.gridy = 1;
-        TrackpadDisplay td1 = new TrackpadDisplay(trackDispSize, trackDispSize, trackScale, trackScale, cont.getTrack1());
+        TrackpadDisplay td1 = new TrackpadDisplay(trackDispSize, trackDispSize,
+                trackScaleX, trackScaleY, cont.getTrack1());
         this.add(td1, gc);
 
         gc.gridx = 1;
         gc.gridy = 0;
         this.add(new JLabel("Track 2"), gc);
         gc.gridy = 1;
-        TrackpadDisplay td2 = new TrackpadDisplay(trackDispSize, trackDispSize, trackScale, trackScale, cont.getTrack2());
+        TrackpadDisplay td2 = new TrackpadDisplay(trackDispSize, trackDispSize,
+                trackScaleX, trackScaleY, cont.getTrack2());
         this.add(td2, gc);
 
         gc.gridx = 0;

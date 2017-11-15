@@ -3,12 +3,9 @@ package test;
 
 import events.ControllerButtonListener;
 import events.ControllerEventGenerator;
-import io.ControllerReader;
+import io.ControllerOverMessenger;
 import events.ControllerSpecListener;
 import events.ControllerTrackListener;
-import io.ControllerWriter;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  *
@@ -33,7 +30,7 @@ public class ControllerEventEcho {
                 }
             });
 
-            for (int i = 0; i < ControllerReader.maxButtons; i++) {
+            for (int i = 0; i < ControllerOverMessenger.maxButtons; i++) {
                 final int buttonNumber = i;
                 events.addButtonListener(new ControllerButtonListener() {
 
